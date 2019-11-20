@@ -1,7 +1,5 @@
 package Chat;
 
-import org.w3c.dom.ls.LSOutput;
-
 import java.io.*;
 import java.net.Socket;
 
@@ -35,7 +33,7 @@ public class Client {
         }
     }
 
-    private class ReadMessage extends Thread {
+    class ReadMessage extends Thread {
         String tmp;
 
         @Override
@@ -54,23 +52,21 @@ public class Client {
         }
     }
 
-    private class SendMessage extends Thread {
+    class SendMessage extends Thread {
         String tmp;
 
         @Override
         public void run() {
             try {
                 name = reader.readLine();
-                out.write(name);
-                out.flush();
+                out.write(name + "\n");
                 while (true) {
                     tmp = reader.readLine();
                     if (tmp.equals("стоп")) {
                         out.write("стоп\n");
-                        out.flush();
                         break;
                     }
-                    out.write(tmp);
+                    out.write(tmp + "\n");
                     out.flush();
                 }
             } catch (IOException e) {
