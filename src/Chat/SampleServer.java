@@ -34,6 +34,8 @@ class SampleServer extends Thread {
             while (true) {
                 tmp = in.readLine();
                 if (tmp.equals("стоп")) {
+                    socket.close();
+                    serverList.remove(this);
                     break;
                 }
 
