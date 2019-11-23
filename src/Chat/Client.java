@@ -20,11 +20,9 @@ public class Client {
 
     private void createClient() {
         try {
-            UIClient ui = new UIClient();
             System.out.print("Введите хост и порт сервера: ");
             reader = new BufferedReader(new InputStreamReader(System.in));
-//            socket = new Socket(reader.readLine(), Integer.parseInt(reader.readLine()));
-            socket = new Socket("localhost", 8080);
+            socket = new Socket(reader.readLine(), Integer.parseInt(reader.readLine()));
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             ReadMessage rm = new ReadMessage();
@@ -47,11 +45,7 @@ public class Client {
                     System.out.println(tmp);
                 } catch (IOException e) {
                     System.out.println("Соединение потеряно");
-                    try {
-                        sleep(10000);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
+                    System.exit(0);
                 }
             }
         }
@@ -77,7 +71,7 @@ public class Client {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-            }finally {
+            } finally {
                 System.exit(0);
             }
         }
