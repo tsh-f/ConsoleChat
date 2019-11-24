@@ -34,20 +34,33 @@ public class Client {
         }
     }
 
+    void closeAll(){
+        try {
+            reader.close();
+            in.close();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     class ReadMessage extends Thread {
         String tmp;
 
         @Override
         public void run() {
-            while (true) {
-                try {
+            try {
+                while (true) {
                     tmp = in.readLine();
                     System.out.println(tmp);
-                } catch (IOException e) {
-                    System.out.println("Соединение потеряно");
-                    System.exit(0);
                 }
+            } catch (IOException e) {
+                System.out.println("Соединение потеряно");
+            } finally {
+                closeAll();
             }
+
         }
     }
 

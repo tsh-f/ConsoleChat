@@ -27,7 +27,7 @@ class Server {
             while (true) {
                 socket = server.accept();
                 new SampleServer(socket).start();
-                System.out.println(socket.getInetAddress().getHostName() + "connected!");
+                System.out.println(socket.getInetAddress().getHostName() + " connected!");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -71,8 +71,8 @@ class Server {
                     }
                 }
             } catch (IOException e) {
-                System.out.println("Connection reset");
-            }finally {
+                System.out.println("Connection reset " + socket.getInetAddress().getHostName());
+            } finally {
                 try {
                     serverList.remove(this);
                     this.socket.close();
