@@ -2,91 +2,71 @@ package Chat;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Client {
-    private Socket socket;
-    private BufferedReader in;
-    private BufferedWriter out;
-    private BufferedReader reader;
     private String name;
 
-    Client() {
-        createClient();
-    }
-
     public static void main(String[] args) {
-        new Client();
+        new Client().createClient();
     }
 
     private void createClient() {
-        try {
-            System.out.print("Введите хост и порт сервера: ");
-            reader = new BufferedReader(new InputStreamReader(System.in));
-            socket = new Socket(reader.readLine(), Integer.parseInt(reader.readLine()));
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            ReadMessage rm = new ReadMessage();
-            SendMessage sm = new SendMessage();
-            rm.start();
-            sm.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Введите адрес сервера:  ");
+        String host = scanner.next();
+        System.out.print("Введите порт сервера: ");
+        int port = scanner.nextInt();
+        try (Socket socket = new Socket(host, port);
+             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+            Thread rm = new Thread() {
+                String tmp;
 
-    void closeAll(){
-        try {
-            reader.close();
-            in.close();
-            out.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    class ReadMessage extends Thread {
-        String tmp;
-
-        @Override
-        public void run() {
-            try {
-                while (true) {
-                    tmp = in.readLine();
-                    System.out.println(tmp);
-                }
-            } catch (IOException e) {
-                System.out.println("Соединение потеряно");
-            } finally {
-                closeAll();
-            }
-
-        }
-    }
-
-    class SendMessage extends Thread {
-        String tmp;
-
-        @Override
-        public void run() {
-            try {
-                System.out.print("Введите имя: ");
-                name = reader.readLine();
-                out.write(name + "\n");
-                while (true) {
-                    tmp = reader.readLine();
-                    if (tmp.equals("стоп")) {
-                        out.write("стоп\n");
-                        break;
+                @Override
+                public void run() {
+                    try {
+                        while (true) {
+                            tmp = in.readLine();
+                            System.out.println(tmp);
+                        }
+                    } catch (IOException e) {
+                        System.out.println("Соединение потеряно");
                     }
-                    out.write(tmp + "\n");
-                    out.flush();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                System.exit(0);
-            }
+            };
+
+            Thread sm = new Thread() {
+                String tmp;
+
+                @Override
+                public void run() {
+                    try {
+                        System.out.print("Введите имя: ");
+                        name = scanner.nextLine();
+                        out.write(name);
+                        while (true) {
+                            tmp = scanner.nextLine();
+                            if (tmp.equals("стоп")) {
+                                out.write("стоп\n");
+                                break;
+                            }
+                            out.write(tmp + "\n");
+                            out.flush();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            sm.start();
+            rm.start();
+            sm.join();
+            rm.join();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            scanner.close();
         }
     }
 }

@@ -11,13 +11,9 @@ class Server {
     private ServerSocket server;
     private Socket socket;
 
-    Server(int port) {
-        createServer(port);
-    }
-
     public static void main(String[] args) {
         System.out.print("Введите порт сервера: ");
-        new Server(new Scanner(System.in).nextInt());
+        new Server().createServer(new Scanner(System.in).nextInt());
     }
 
     private void createServer(int port) {
@@ -26,7 +22,7 @@ class Server {
             serverList = new LinkedList<>();
             while (true) {
                 socket = server.accept();
-                new SampleServer(socket).start();
+                new Thread(new SampleServer(socket)).start();
                 System.out.println(socket.getInetAddress().getHostName() + " connected!");
             }
         } catch (IOException e) {
@@ -34,29 +30,23 @@ class Server {
         }
     }
 
-    class SampleServer extends Thread {
+    class SampleServer implements Runnable {
         private Socket socket;
-        private BufferedReader in;
         private BufferedWriter out;
+        private BufferedReader in;
 
-        SampleServer(Socket socket) {
+        SampleServer(Socket socket) throws IOException {
             this.socket = socket;
-            serverList.add(this);
-            createSampleServer();
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         }
 
-        private void createSampleServer() {
-            try {
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
         @Override
         public void run() {
+            serverList.add(this);
             String tmp;
+
             try {
                 String name = in.readLine();
                 while (true) {
@@ -76,8 +66,6 @@ class Server {
                 try {
                     serverList.remove(this);
                     this.socket.close();
-                    this.in.close();
-                    this.out.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
