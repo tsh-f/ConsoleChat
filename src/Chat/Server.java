@@ -3,6 +3,8 @@ package Chat;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -56,7 +58,7 @@ class Server {
                     }
 
                     for (SampleServer ss : serverList) {
-                        ss.out.write(name + ": " + tmp + "\n");
+                        ss.out.write("(" + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + ") " +  name + ": " + tmp + "\n");
                         ss.out.flush();
                     }
                 }
